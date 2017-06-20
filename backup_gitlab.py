@@ -5,6 +5,7 @@ import requests
 import shutil
 import subprocess
 import sys
+import time
 
 import conf
 
@@ -51,6 +52,7 @@ def update_git_repo(repo_dir):
 
 
 def backup_gitlab():
+    start = time.time()
     for project in get_projects():
         print('*'*80)
         web_url = project['web_url']
@@ -65,6 +67,8 @@ def backup_gitlab():
             update_git_repo(repo_dir)
         else:
             mirror_git_repo(http_url, repo_dir)
+    end = time.time()
+    print('took: ', end-start, 's')
 
 
 def main():
