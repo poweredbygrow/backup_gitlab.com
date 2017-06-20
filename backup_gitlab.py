@@ -31,29 +31,40 @@ def get_projects():
     return projects
 
 
+def mirror_git_repo(http_url, repo_dir):
+    try:
+        run(['git', 'clone', '--mirror', http_url])
+    except KeyboardInterrupt:
+        clean(repo_dir)
+        sys.exit(1)
+    except Exception:
+        clean(repo_dir)
+
+
+def update_git_repo(repo_dir):
+    try:
+        old_dir = os.getcwd()
+        os.chdir(repo_dir)
+        run(['git', 'remote', 'update'])
+    finally:
+        os.chdir(old_dir)
+
+
 def backup_gitlab():
     for project in get_projects():
         print('*'*80)
-        print(project['web_url'])
+        web_url = project['web_url']
+        print(web_url)
+
         http_url = project['ssh_url_to_repo']
+        # Remove the entire url except the last part which is
+        # what the mirrored directory will be called
         repo_dir = http_url.split('/')[-1]
+
         if os.path.isdir(repo_dir):
-            try:
-                old_dir = os.getcwd()
-                os.chdir(repo_dir)
-                cmd = ['git', 'remote', 'update']
-                run(cmd)
-            finally:
-                os.chdir(old_dir)
+            update_git_repo(repo_dir)
         else:
-            try:
-                cmd = ['git', 'clone', '--mirror', http_url]
-                run(cmd)
-            except KeyboardInterrupt:
-                clean(repo_dir)
-                sys.exit(1)
-            except:
-                clean(repo_dir)
+            mirror_git_repo(http_url, repo_dir)
 
 
 def main():
