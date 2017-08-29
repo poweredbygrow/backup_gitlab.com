@@ -64,7 +64,13 @@ def backup_gitlab():
         repo_dir = http_url.split('/')[-1]
 
         if os.path.isdir(repo_dir):
-            update_git_repo(repo_dir)
+            try:
+                update_git_repo(repo_dir)
+            except subprocess.CalledProcessError:
+                print('Updating repo_dir failed trying to delete and mirror')
+                shutil.rmtree(repo_dir)
+                mirror_git_repo(http_url, repo_dir)
+
         else:
             mirror_git_repo(http_url, repo_dir)
     end = time.time()
