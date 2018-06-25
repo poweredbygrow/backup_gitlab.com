@@ -2,3 +2,4 @@ conf.py
 __pycache__
 backup_dir
 .idea
+log/
