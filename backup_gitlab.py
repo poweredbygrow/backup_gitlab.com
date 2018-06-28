@@ -49,8 +49,6 @@ def get_projects():
         page += 1
         projects += new_projects
 
-    os.makedirs(conf.backup_dir, exist_ok=True)
-    os.chdir(conf.backup_dir)
     return projects
 
 
@@ -75,10 +73,16 @@ def update_git_repo(repo_dir):
 
 def backup_gitlab():
     start = time.time()
-    for project in get_projects():
-        logger.info('*'*80)
+    os.makedirs(conf.backup_dir, exist_ok=True)
+    os.chdir(conf.backup_dir)
+
+    projects = get_projects()
+    print('Found ', len(projects), 'projects')
+    for project in projects:
+        print('*'*80)
+        id = project['id']
         web_url = project['web_url']
-        logger.info(web_url)
+        print('id:', id, 'web_url:', web_url)
 
         http_url = project['ssh_url_to_repo']
         # Remove the entire url except the last part which is
@@ -101,6 +105,7 @@ def backup_gitlab():
 
 def main():
     backup_gitlab()
+
 
 if __name__ == '__main__':
     main()
